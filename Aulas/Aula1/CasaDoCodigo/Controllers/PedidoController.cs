@@ -1,4 +1,5 @@
 ﻿using CasaDoCodigo.Models;
+using CasaDoCodigo.Models.ViewModels;
 using CasaDoCodigo.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,11 +9,13 @@ namespace CasaDoCodigo.Controllers
     {
         private readonly IProdutoRepository produtoRepository;
         private readonly IPedidoRepository pedidoRepository;
+        private readonly IItemPedidoRpository itemPedidoRpository;
 
-        public PedidoController(IProdutoRepository produtoRepository, IPedidoRepository pedidoRpository)
+        public PedidoController(IProdutoRepository produtoRepository, IPedidoRepository pedidoRpository, IItemPedidoRpository itemPedidoRpository)
         {
             this.produtoRepository = produtoRepository;
             this.pedidoRepository = pedidoRpository;
+            this.itemPedidoRpository = itemPedidoRpository;
         }
 
         public IActionResult Carrossel()
@@ -29,20 +32,34 @@ namespace CasaDoCodigo.Controllers
 
             Pedido pedido = pedidoRepository.GetPedido();
 
-            return View(pedido.Itens);
+            return View(new CarrinhoViewModel(pedido.Itens));
         }
 
         public IActionResult Cadastro()
         {
-            return View();
+            var pedido = pedidoRepository.GetPedido();
+
+            if (pedido == null)
+                return RedirectToAction("Carrossel");
+
+            return View(pedido.Cadastro);
         }
 
-        public IActionResult Resumo()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Resumo(Cadastro cadastro)
         {
-            Pedido pedido = pedidoRepository.GetPedido();
+            if (ModelState.IsValid)
+                return View(pedidoRepository.UpdateCadastro(cadastro));
 
-            return View(pedido);
+            return RedirectToAction("Cadastro");
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public UpdateQuantidadeResponse UpdateQuantidade([FromBody]ItemPedido itemPedido)
+        {
+            return pedidoRepository.UpdateQuantidade(itemPedido);
+        }
     }
 }

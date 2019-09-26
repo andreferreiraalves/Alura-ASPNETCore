@@ -33,7 +33,7 @@ namespace CasaDoCodigo
             services.AddTransient<IProdutoRepository, ProdutoRepository>();
             services.AddTransient<IItemPedidoRpository, ItemPedidoRpository>();
             services.AddTransient<IPedidoRepository, PedidoRepository>();
-            services.AddTransient<ICadastroRpository, CadastroRpository>();
+            services.AddTransient<ICadastroRepository, CadastroRpository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
